@@ -1,16 +1,17 @@
 import { createClient } from "@supabase/supabase-js";
+import { getSupabasePublicConfig, hasSupabasePublicConfig } from "@/utils/supabase/config";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
 export function hasSupabaseAdminAccess() {
-  return Boolean(supabaseUrl && serviceRoleKey);
+  return hasSupabasePublicConfig() && Boolean(serviceRoleKey);
 }
 
 export function createAdminClient() {
-  if (!supabaseUrl || !serviceRoleKey) {
+  if (!serviceRoleKey) {
     throw new Error("SUPABASE_ADMIN_NOT_CONFIGURED");
   }
+  const { supabaseUrl } = getSupabasePublicConfig();
 
   return createClient(supabaseUrl, serviceRoleKey, {
     auth: {

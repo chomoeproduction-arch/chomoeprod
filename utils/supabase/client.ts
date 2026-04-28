@@ -1,10 +1,10 @@
 import { createBrowserClient } from "@supabase/ssr";
+import { getSupabasePublicConfig } from "@/utils/supabase/config";
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+export const createClient = () => {
+  const { supabaseUrl, supabaseKey } = getSupabasePublicConfig();
 
-export const createClient = () =>
-  createBrowserClient(supabaseUrl!, supabaseKey!, {
+  return createBrowserClient(supabaseUrl, supabaseKey, {
     cookies: {
       encode: "tokens-only",
       getAll() {
@@ -49,3 +49,4 @@ export const createClient = () =>
       },
     },
   });
+};

@@ -2,14 +2,13 @@ import { createClient as createSupabaseClient } from "@supabase/supabase-js";
 import { NextResponse } from "next/server";
 import { prepareSignedInUserMetadata } from "@/lib/team";
 import { createClient as createServerClient } from "@/utils/supabase/server";
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+import { getSupabasePublicConfig } from "@/utils/supabase/config";
 
 export async function POST(request: Request) {
   const body = (await request.json()) as { email?: string; password?: string };
   const email = body.email?.trim() ?? "";
   const password = body.password ?? "";
+  const { supabaseUrl, supabaseKey } = getSupabasePublicConfig();
   const authClient = createSupabaseClient(supabaseUrl!, supabaseKey!, {
     auth: {
       autoRefreshToken: false,
