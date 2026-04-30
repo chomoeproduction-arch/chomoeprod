@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { ArrowLeft, ArrowRight, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import algeriaLocations from "@/lib/algeria-locations.json";
 import { blankApplicantProfile, type ApplicantProfile } from "@/lib/crm-data";
@@ -10,14 +11,36 @@ const focusOptions = [
   "Backend (أنظمة و APIs)",
   "Full-stack",
   "DevOps / Infrastructure",
+  "UI / Responsive implementation",
 ];
 
 const experienceOptions = ["0-1 سنوات", "1-3 سنوات", "3-5 سنوات", "5+ سنوات"];
 
-const practicalLevels = [
-  "Level 1: Landing Page + Responsive + Form",
-  "Level 2: Landing Page + Form + API + Storage",
+const conceptOptions = [
+  "APIs",
+  "Database relationships",
+  "Authentication / Authorization",
+  "CRUD dashboards",
+  "Roles / Permissions",
+  "Deployment basics",
 ];
+
+const workStyleOptions = [
+  "أقسم المهمة لخطوات صغيرة",
+  "نخدم بـ Git commits واضحة",
+  "نراجع الكود قبل التسليم",
+  "نختبر يدويًا قبل الإرسال",
+  "نكتب أسماء وملفات منظمة",
+];
+
+const aiOptions = [
+  "أستعمله للفهم والشرح",
+  "أستعمله لتسريع كتابة الكود",
+  "أراجعه قبل اعتماده",
+  "أحتاج نتعلم كيف نتحقق منه أكثر",
+];
+
+type FormStep = "basics" | "deep";
 
 type AlgeriaLocation = {
   code: string;
@@ -82,6 +105,7 @@ export function TechnicalApplicationForm() {
   const [profile, setProfile] = useState<ApplicantProfile>(blankApplicantProfile);
   const [selectedWilayaCode, setSelectedWilayaCode] = useState("");
   const [selectedCommuneName, setSelectedCommuneName] = useState("");
+  const [currentStep, setCurrentStep] = useState<FormStep>("basics");
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -116,10 +140,63 @@ export function TechnicalApplicationForm() {
     updateLocation(selectedWilayaCode, value);
   }
 
+  function validateBasics() {
+    if (
+      !profile.fullName.trim() ||
+      !profile.email.trim() ||
+      !profile.phone.trim() ||
+      !selectedWilayaCode ||
+      !selectedCommuneName ||
+      !profile.technicalFocus ||
+      !profile.primaryStack.trim() ||
+      !profile.experienceYears ||
+      !profile.email.includes("@")
+    ) {
+      setError("يرجى إكمال المعلومات الأساسية والجانب التقني البسيط قبل الانتقال.");
+      return false;
+    }
+
+    setError("");
+    return true;
+  }
+
+  function hasDeepAnswer() {
+    return [
+      profile.databaseRelationships,
+      profile.codingPractices,
+      profile.aiUsage,
+      profile.performanceScenario,
+      profile.formFlowExplanation,
+      profile.deadlineApproach,
+      profile.strengths,
+      profile.learningFocus,
+      profile.aiValidation,
+    ].some((answer) => answer.trim().length > 0);
+  }
+
+  function moveToStep(step: FormStep) {
+    if (step === "deep" && !validateBasics()) {
+      return;
+    }
+
+    setCurrentStep(step);
+    setError("");
+    window.requestAnimationFrame(() => {
+      document.querySelector(".application-form-rich")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+  }
+
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!profile.technicalFocus || !profile.practicalLevel || !selectedWilayaCode || !selectedCommuneName) {
-      setError("يرجى إكمال اختيارات الولاية والبلدية، وكذلك الأسئلة التي تحتوي على مربعات تحديد.");
+    if (!validateBasics()) {
+      setCurrentStep("basics");
+      setSubmitted(false);
+      return;
+    }
+
+    if (!hasDeepAnswer()) {
+      setCurrentStep("deep");
+      setError("الصفحة الثانية ليست اختبارًا، لكن نحتاج جوابًا واحدًا على الأقل حتى نفهم طريقتك.");
       setSubmitted(false);
       return;
     }
@@ -147,6 +224,7 @@ export function TechnicalApplicationForm() {
     setProfile(blankApplicantProfile);
     setSelectedWilayaCode("");
     setSelectedCommuneName("");
+    setCurrentStep("basics");
     setSubmitted(true);
     setLoading(false);
 
@@ -157,380 +235,229 @@ export function TechnicalApplicationForm() {
 
   return (
     <form className="application-form application-form-rich" onSubmit={handleSubmit}>
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">01</span>
-          <div>
-            <h3>المعلومات الأساسية</h3>
-            <p>بيانات التواصل الأساسية ورابط أعمالك إن وجد.</p>
-          </div>
+      <div className="application-stepper" aria-label="خطوات التسجيل">
+        <div className={`step-indicator ${currentStep === "basics" ? "step-indicator-active" : "step-indicator-complete"}`}>
+          <span>01</span>
+          <strong>المعلومات الأساسية</strong>
         </div>
-
-        <div className="field-grid two">
-          <label>
-            الاسم الكامل
-            <input required value={profile.fullName} onChange={(event) => updateField("fullName", event.target.value)} />
-          </label>
-          <label>
-            البريد الإلكتروني
-            <input type="email" required value={profile.email} onChange={(event) => updateField("email", event.target.value)} />
-          </label>
-          <label>
-            الهاتف / واتساب
-            <input required value={profile.phone} onChange={(event) => updateField("phone", event.target.value)} />
-          </label>
-          <label>
-            الولاية
-            <select required value={selectedWilayaCode} onChange={(event) => handleWilayaChange(event.target.value)}>
-              <option value="">اختر الولاية</option>
-              {wilayas.map((wilaya) => (
-                <option key={wilaya.code} value={wilaya.code}>
-                  {wilaya.code} - {wilaya.wilayaName}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            البلدية
-            <select required value={selectedCommuneName} onChange={(event) => handleCommuneChange(event.target.value)} disabled={!selectedWilaya}>
-              <option value="">{selectedWilaya ? "اختر البلدية" : "اختر الولاية أولاً"}</option>
-              {communes.map((commune) => (
-                <option key={`${selectedWilaya?.code}-${commune.name}`} value={commune.name}>
-                  {commune.name}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className={`step-indicator ${currentStep === "deep" ? "step-indicator-active" : ""}`}>
+          <span>02</span>
+          <strong>أسئلة الفهم</strong>
         </div>
-
-        <label>
-          رابط الأعمال / GitHub / LinkedIn
-          <input value={profile.portfolio} onChange={(event) => updateField("portfolio", event.target.value)} />
-        </label>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">02</span>
-          <div>
-            <h3>التوجه التقني</h3>
-            <p>نريد نعرف المجال الذي ترتاح فيه فعليًا، والتقنيات التي تستعملها في الواقع.</p>
-          </div>
-        </div>
-
-        <ChoiceGroup
-          legend="في أي مجال تعتبر نفسك أقوى؟"
-          name="technicalFocus"
-          value={profile.technicalFocus}
-          options={focusOptions}
-          onChange={(value) => updateField("technicalFocus", value)}
-        />
-
-        <div className="field-grid two">
-          <label>
-            ما هي التقنيات التي تستعملها فعليًا؟
-            <input
-              required
-              value={profile.primaryStack}
-              onChange={(event) => updateField("primaryStack", event.target.value)}
-              placeholder="React, Laravel, Node.js, PostgreSQL..."
-            />
-          </label>
-          <label>
-            سنوات الخبرة التقريبية
-            <select required value={profile.experienceYears} onChange={(event) => updateField("experienceYears", event.target.value)}>
-              <option value="">اختر</option>
-              {experienceOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-        </div>
-
-        <label>
-          هل سبق وخدمت على مشروع Production؟ صفه بإيجاز + دورك فيه.
-          <textarea
-            required
-            rows={5}
-            value={profile.recentSystems}
-            onChange={(event) => updateField("recentSystems", event.target.value)}
-            placeholder="نوع المشروع، من كان يستعمله، وما الذي كنت مسؤولًا عنه."
-          />
-        </label>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">03</span>
-          <div>
-            <h3>التفكير البرمجي</h3>
-            <p>هذا القسم يهمنا فيه أسلوبك في التشخيص والتنفيذ، وليس فقط الجواب النظري.</p>
-          </div>
-        </div>
-
-        <label>
-          إذا جاك سيناريو: "الموقع فيه بطء كبير عند تحميل الصفحة الرئيسية" كيفاش تبدأ تحل المشكلة؟
-          <textarea
-            required
-            rows={5}
-            value={profile.performanceScenario}
-            onChange={(event) => updateField("performanceScenario", event.target.value)}
-          />
-        </label>
-
-        <label>
-          كيف تفرق بين Bug و Feature و Improvement؟
-          <textarea
-            required
-            rows={4}
-            value={profile.classificationThinking}
-            onChange={(event) => updateField("classificationThinking", event.target.value)}
-          />
-        </label>
-
-        <label>
-          لما تواجه Error ما تعرفوش، واش أول 3 خطوات تديرهم؟
-          <textarea
-            required
-            rows={4}
-            value={profile.unknownErrorSteps}
-            onChange={(event) => updateField("unknownErrorSteps", event.target.value)}
-          />
-        </label>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">04</span>
-          <div>
-            <h3>هندسة الأنظمة</h3>
-            <p>أجب بطريقة عملية وبسيطة، كأنك تشرح لفريق سيبني معك النظام.</p>
-          </div>
-        </div>
-
-        <div className="field-grid two">
-          <label>
-            واش تفهم من API؟
-            <textarea required rows={4} value={profile.apiUnderstanding} onChange={(event) => updateField("apiUnderstanding", event.target.value)} />
-          </label>
-          <label>
-            واش تفهم من Database Relationships؟
-            <textarea
-              required
-              rows={4}
-              value={profile.databaseRelationships}
-              onChange={(event) => updateField("databaseRelationships", event.target.value)}
-            />
-          </label>
-        </div>
-
-        <label>
-          اشرح الفرق بين Authentication و Authorization.
-          <textarea required rows={4} value={profile.authDifference} onChange={(event) => updateField("authDifference", event.target.value)} />
-        </label>
-
-        <label>
-          كيفاش تبني نظام بسيط فيه Users و Roles و Permissions؟
-          <textarea
-            required
-            rows={5}
-            value={profile.rolesPermissionsDesign}
-            onChange={(event) => updateField("rolesPermissionsDesign", event.target.value)}
-          />
-        </label>
-
-        <label>
-          لو طلبنا منك تبني Mini CRM، كيفاش تقسمه Modules؟
-          <textarea required rows={5} value={profile.miniCrmModules} onChange={(event) => updateField("miniCrmModules", event.target.value)} />
-        </label>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">05</span>
-          <div>
-            <h3>ERP / CRM Mindset</h3>
-            <p>لسنا نبحث عن تعريفات مدرسية، بل عن فهمك لكيف تُستخدم هذه الأنظمة فعليًا.</p>
-          </div>
-        </div>
-
-        <label>
-          هل سبق وخدمت أو درست CRM أو ERP أو POS؟ اشرح وش فهمت منهم.
-          <textarea required rows={5} value={profile.crmExperience} onChange={(event) => updateField("crmExperience", event.target.value)} />
-        </label>
-
-        <div className="field-grid two">
-          <label>
-            في رأيك، ما الفرق بين CRM و ERP؟
-            <textarea required rows={4} value={profile.crmVsErp} onChange={(event) => updateField("crmVsErp", event.target.value)} />
-          </label>
-          <label>
-            إذا تبني CRM، وش أهم 3 Features لازم يكونو فيه؟
-            <textarea required rows={4} value={profile.crmTopFeatures} onChange={(event) => updateField("crmTopFeatures", event.target.value)} />
-          </label>
-        </div>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">06</span>
-          <div>
-            <h3>الكود الحقيقي</h3>
-            <p>ركز على كيف تخدم أنت فعليًا: تنظيم، Git، APIs، وتدفق البيانات من الواجهة إلى قاعدة البيانات.</p>
-          </div>
-        </div>
-
-        <label>
-          هل تكتب Clean Code؟ أعط مثال على Naming و Structure.
-          <textarea required rows={5} value={profile.codingPractices} onChange={(event) => updateField("codingPractices", event.target.value)} />
-        </label>
-
-        <label>
-          هل تستعمل Git و APIs؟ اشرح كيفاش تخدم بهما عادةً.
-          <textarea required rows={4} value={profile.gitAndApis} onChange={(event) => updateField("gitAndApis", event.target.value)} />
-        </label>
-
-        <label>
-          مثال عملي: عندك Form تسجيل، كيفاش تعالج البيانات من Frontend حتى Database؟
-          <textarea
-            required
-            rows={5}
-            value={profile.formFlowExplanation}
-            onChange={(event) => updateField("formFlowExplanation", event.target.value)}
-          />
-        </label>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">07</span>
-          <div>
-            <h3>Vibe Coding / AI Usage</h3>
-            <p>نريد فهم نضجك في استخدام AI: أين يفيدك، وأين يمكن أن يضللك.</p>
-          </div>
-        </div>
-
-        <label>
-          هل استعملت أدوات AI في البرمجة؟ كيف تستعملها؟
-          <textarea required rows={4} value={profile.aiUsage} onChange={(event) => updateField("aiUsage", event.target.value)} />
-        </label>
-
-        <label>
-          كيفاش تضمن أن الكود الناتج من AI صحيح وآمن وقابل للصيانة؟
-          <textarea required rows={5} value={profile.aiValidation} onChange={(event) => updateField("aiValidation", event.target.value)} />
-        </label>
-
-        <label>
-          أعط مثال وين AI ساعدك، ووين فشل معاك.
-          <textarea required rows={4} value={profile.aiExample} onChange={(event) => updateField("aiExample", event.target.value)} />
-        </label>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">08</span>
-          <div>
-            <h3>الاختبار العملي</h3>
-            <p>اختر المستوى المناسب لك، ثم اشرح باختصار كيف تسلّم العمل بشكل منظم.</p>
-          </div>
-        </div>
-
-        <ChoiceGroup
-          legend="أي مستوى تفضّل؟"
-          name="practicalLevel"
-          value={profile.practicalLevel}
-          options={practicalLevels}
-          onChange={(value) => updateField("practicalLevel", value)}
-        />
-
-        <label>
-          كيفاش تنفذ وتسلم هذا الاختبار؟
-          <textarea
-            required
-            rows={4}
-            value={profile.practicalDelivery}
-            onChange={(event) => updateField("practicalDelivery", event.target.value)}
-            placeholder="مثلاً: تقسيم المهام، Git workflow، API، التخزين، وكيف تتأكد أن كل شيء شغال."
-          />
-        </label>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">09</span>
-          <div>
-            <h3>الضغط والعمل الجماعي</h3>
-            <p>كيف تتصرف حين يكون الوقت ضيقًا أو حين توجد اختلافات تقنية داخل الفريق.</p>
-          </div>
-        </div>
-
-        <label>
-          عندك Deadline غدوا، والمشروع فيه Bugs. كيفاش تتصرف؟
-          <textarea required rows={4} value={profile.deadlineApproach} onChange={(event) => updateField("deadlineApproach", event.target.value)} />
-        </label>
-
-        <div className="field-grid two">
-          <label>
-            كيفاش تتعامل مع Dev آخر كودو ضعيف؟
-            <textarea
-              required
-              rows={4}
-              value={profile.weakCodeCollaboration}
-              onChange={(event) => updateField("weakCodeCollaboration", event.target.value)}
-            />
-          </label>
-          <label>
-            إذا Lead قالك "بدّل كل الكود"، وش يكون ردك؟
-            <textarea required rows={4} value={profile.rewriteResponse} onChange={(event) => updateField("rewriteResponse", event.target.value)} />
-          </label>
-        </div>
-      </section>
-
-      <section className="form-section">
-        <div className="section-title">
-          <span className="section-index">10</span>
-          <div>
-            <h3>التقييم الذاتي</h3>
-            <p>هذا القسم يساعدنا نفهم وعيك بنفسك وكيف تتطور، وليس فقط مستواك الحالي.</p>
-          </div>
-        </div>
-
-        <label>
-          ما أبرز نقاط قوتك اليوم؟
-          <textarea required rows={4} value={profile.strengths} onChange={(event) => updateField("strengths", event.target.value)} />
-        </label>
-
-        <label>
-          قيّم نفسك من 10 في Problem Solving و Code Quality و Speed، مع سبب مختصر.
-          <textarea
-            required
-            rows={4}
-            value={profile.selfRatings}
-            onChange={(event) => updateField("selfRatings", event.target.value)}
-            placeholder="مثال: Problem Solving 8/10 ... Code Quality 7/10 ... Speed 6/10 ..."
-          />
-        </label>
-
-        <label>
-          ما الحاجة التي لو تتعلمها الآن، ترفع مستواك مباشرة؟
-          <textarea required rows={4} value={profile.learningFocus} onChange={(event) => updateField("learningFocus", event.target.value)} />
-        </label>
-
-        <label>
-          اشرح مشروع تقني فشلت فيه، ووش تعلمت منه.
-          <textarea required rows={5} value={profile.failureExperience} onChange={(event) => updateField("failureExperience", event.target.value)} />
-        </label>
-      </section>
-
-      <div className="form-actions">
-        <button type="submit" className="primary-action" disabled={loading}>
-          {loading ? "جاري إرسال الملف..." : "إرسال ملف الترشح"}
-        </button>
-        {submitted ? <p className="submission-feedback success">تم إرسال الترشح بنجاح.</p> : null}
-        {error ? <p className="error-copy">{error}</p> : null}
       </div>
+
+      {currentStep === "basics" ? (
+        <section className="form-section application-slide">
+          <div className="section-title">
+            <span className="section-index">01</span>
+            <div>
+              <h3>المعلومات الأساسية والجانب التقني</h3>
+              <p>هذه الصفحة تجمع بيانات التواصل وما تعرفه تقنيًا بطريقة مختصرة وواضحة.</p>
+            </div>
+          </div>
+
+          <div className="field-grid two">
+            <label>
+              الاسم الكامل
+              <input required value={profile.fullName} onChange={(event) => updateField("fullName", event.target.value)} />
+            </label>
+            <label>
+              البريد الإلكتروني
+              <input type="email" required value={profile.email} onChange={(event) => updateField("email", event.target.value)} />
+            </label>
+            <label>
+              الهاتف / واتساب
+              <input required value={profile.phone} onChange={(event) => updateField("phone", event.target.value)} />
+            </label>
+            <label>
+              الولاية
+              <select required value={selectedWilayaCode} onChange={(event) => handleWilayaChange(event.target.value)}>
+                <option value="">اختر الولاية</option>
+                {wilayas.map((wilaya) => (
+                  <option key={wilaya.code} value={wilaya.code}>
+                    {wilaya.code} - {wilaya.wilayaName}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              البلدية
+              <select required value={selectedCommuneName} onChange={(event) => handleCommuneChange(event.target.value)} disabled={!selectedWilaya}>
+                <option value="">{selectedWilaya ? "اختر البلدية" : "اختر الولاية أولًا"}</option>
+                {communes.map((commune) => (
+                  <option key={`${selectedWilaya?.code}-${commune.name}`} value={commune.name}>
+                    {commune.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label>
+              رابط أعمالك إن وجد
+              <input value={profile.portfolio} onChange={(event) => updateField("portfolio", event.target.value)} placeholder="GitHub, LinkedIn, Portfolio..." />
+            </label>
+          </div>
+
+          <ChoiceGroup
+            legend="في أي جانب ترتاح أكثر؟ يمكن اختيار أكثر من خيار."
+            name="technicalFocus"
+            value={profile.technicalFocus}
+            options={focusOptions}
+            onChange={(value) => updateField("technicalFocus", value)}
+          />
+
+          <div className="field-grid two">
+            <label>
+              التقنيات التي تستعملها فعليًا
+              <input
+                required
+                value={profile.primaryStack}
+                onChange={(event) => updateField("primaryStack", event.target.value)}
+                placeholder="React, Laravel, Node.js, PostgreSQL..."
+              />
+            </label>
+            <label>
+              سنوات الخبرة التقريبية
+              <select required value={profile.experienceYears} onChange={(event) => updateField("experienceYears", event.target.value)}>
+                <option value="">اختر</option>
+                {experienceOptions.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <label>
+            مشروع أو تجربة قريبة خدمت عليها
+            <textarea
+              rows={4}
+              value={profile.recentSystems}
+              onChange={(event) => updateField("recentSystems", event.target.value)}
+              placeholder="اختياري: نوع المشروع، دورك، والتقنيات التي استعملتها."
+            />
+          </label>
+        </section>
+      ) : (
+        <section className="form-section application-slide">
+          <div className="section-title">
+            <span className="section-index">02</span>
+            <div>
+              <h3>أسئلة معمقة قليلًا</h3>
+              <p>الهدف معرفة ما تعرف وكيف تفكر، وليس اختبارك أو اصطياد أخطائك. جاوب بصدق وباختصار.</p>
+            </div>
+          </div>
+
+          <div className="form-note">
+            <CheckCircle2 aria-hidden="true" />
+            <p>يمكنك ترك بعض الأسئلة فارغة. المهم أن تعطينا على الأقل جوابًا واحدًا يوضح طريقة تفكيرك.</p>
+          </div>
+
+          <ChoiceGroup
+            legend="المفاهيم التي عندك معها تجربة أو فهم مبدئي"
+            name="databaseRelationships"
+            value={profile.databaseRelationships}
+            options={conceptOptions}
+            onChange={(value) => updateField("databaseRelationships", value)}
+          />
+
+          <ChoiceGroup
+            legend="كيف تنظم خدمتك عادة؟"
+            name="codingPractices"
+            value={profile.codingPractices}
+            options={workStyleOptions}
+            onChange={(value) => updateField("codingPractices", value)}
+          />
+
+          <ChoiceGroup
+            legend="استعمالك للذكاء الاصطناعي في البرمجة"
+            name="aiUsage"
+            value={profile.aiUsage}
+            options={aiOptions}
+            onChange={(value) => updateField("aiUsage", value)}
+          />
+
+          <div className="question-stack">
+            <label>
+              إذا كانت صفحة في الموقع بطيئة، كيف تبدأ التشخيص؟
+              <textarea
+                rows={4}
+                value={profile.performanceScenario}
+                onChange={(event) => updateField("performanceScenario", event.target.value)}
+                placeholder="مثال: نفتح DevTools، نشوف الشبكة، حجم الصور، الاستعلامات..."
+              />
+            </label>
+
+            <label>
+              عندك Form تسجيل، كيف تمر البيانات من الواجهة حتى قاعدة البيانات؟
+              <textarea
+                rows={4}
+                value={profile.formFlowExplanation}
+                onChange={(event) => updateField("formFlowExplanation", event.target.value)}
+                placeholder="اشرحها بطريقتك، ولو بمثال بسيط."
+              />
+            </label>
+
+            <label>
+              كيف تتأكد أن كود خرج من AI صحيح وقابل للصيانة؟
+              <textarea
+                rows={4}
+                value={profile.aiValidation}
+                onChange={(event) => updateField("aiValidation", event.target.value)}
+                placeholder="اختياري، لكن يساعدنا نفهم طريقة تعاملك مع الأدوات."
+              />
+            </label>
+
+            <div className="field-grid two">
+              <label>
+                إذا كان Deadline قريب وفيه Bugs، ماذا تفعل أولًا؟
+                <textarea rows={4} value={profile.deadlineApproach} onChange={(event) => updateField("deadlineApproach", event.target.value)} />
+              </label>
+              <label>
+                ما أقوى نقطة عندك اليوم؟
+                <textarea rows={4} value={profile.strengths} onChange={(event) => updateField("strengths", event.target.value)} />
+              </label>
+            </div>
+
+            <label>
+              ما الشيء الذي لو تتعلمه الآن يرفع مستواك بسرعة؟
+              <textarea rows={4} value={profile.learningFocus} onChange={(event) => updateField("learningFocus", event.target.value)} />
+            </label>
+          </div>
+        </section>
+      )}
+
+      <div className="form-actions form-actions-between">
+        {currentStep === "deep" ? (
+          <button type="button" className="secondary-action" onClick={() => moveToStep("basics")} disabled={loading}>
+            <span className="icon-button-content">
+              <ArrowRight aria-hidden="true" size={18} />
+              رجوع
+            </span>
+          </button>
+        ) : (
+          <span />
+        )}
+
+        {currentStep === "basics" ? (
+          <button type="button" className="primary-action" onClick={() => moveToStep("deep")}>
+            <span className="icon-button-content">
+              التالي
+              <ArrowLeft aria-hidden="true" size={18} />
+            </span>
+          </button>
+        ) : (
+          <button type="submit" className="primary-action" disabled={loading}>
+            <span className="icon-button-content">
+              {loading ? "جاري إرسال الملف..." : "إرسال ملف الترشح"}
+              <CheckCircle2 aria-hidden="true" size={18} />
+            </span>
+          </button>
+        )}
+      </div>
+
+      {submitted ? <p className="submission-feedback success">تم إرسال الترشح بنجاح.</p> : null}
+      {error ? <p className="error-copy">{error}</p> : null}
     </form>
   );
 }

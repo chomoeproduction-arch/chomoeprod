@@ -2,9 +2,9 @@ import Image from "next/image";
 import { TechnicalApplicationForm } from "@/components/forms/technical-application-form";
 
 const highlights = [
-  "أسئلة مرتبة حسب التفكير، التنفيذ، والعمل الجماعي.",
-  "جاوب بطريقتك الحقيقية وبأمثلة من تجاربك الفعلية.",
-  "المهم عندنا هو الوضوح وطريقة التفكير أكثر من الكلام المنمق.",
+  "التسجيل صار في خطوتين فقط حتى يكون أسهل وأوضح.",
+  "الصفحة الأولى للمعلومات الأساسية والجانب التقني ببساطة.",
+  "الصفحة الثانية لفهم طريقتك، وليست اختبارًا نهائيًا.",
 ];
 
 export default function TechnicalApplicationPage() {
@@ -22,16 +22,16 @@ export default function TechnicalApplicationPage() {
             </div>
           </div>
 
-          <h1>Technical Hiring Questionnaire</h1>
+          <h1>تسجيل الفريق التقني</h1>
           <p className="hero-text">
-            هذا النموذج مخصص لاختيار أعضاء الفريق التقني بناءً على التفكير، المهارات، والقدرة على التنفيذ. خذ وقتك في
-            الإجابة، ونفضّل الوضوح والصدق على الإجابات المثالية.
+            هذا النموذج يساعدنا نفهم مستواك وطريقة تفكيرك بدون ضغط. خذ وقتك، واكتب إجابات صادقة ومباشرة بدل محاولة
+            تقديم إجابات مثالية.
           </p>
         </div>
 
         <div className="application-hero-panel">
           <span className="hero-badge">مسار التقديم التقني</span>
-          <h2>استمارة واحدة واضحة للمترشح</h2>
+          <h2>خطوتان واضحتان بدل نموذج طويل</h2>
           <div className="hero-points">
             {highlights.map((item) => (
               <p key={item}>{item}</p>
@@ -43,18 +43,18 @@ export default function TechnicalApplicationPage() {
       <section className="form-intro-grid">
         <article className="intro-card intro-card-strong">
           <span className="intro-step">01</span>
-          <h3>املأ النموذج بهدوء</h3>
-          <p>الأسئلة منظمة على 10 محاور حتى تكون الإجابات أسهل عليك وأسهل على فريق التقييم.</p>
+          <h3>ابدأ بالأساسيات</h3>
+          <p>املأ بيانات التواصل، الولاية والبلدية، والتقنيات التي تستعملها فعليًا.</p>
         </article>
         <article className="intro-card">
           <span className="intro-step">02</span>
-          <h3>جاوب بطريقة عملية</h3>
-          <p>نحن نهتم بكيفاش تفكر وتنفذ أكثر من العبارات العامة أو الإجابات المحفوظة.</p>
+          <h3>اختر بدل ما تكتب كثيرًا</h3>
+          <p>حوّلنا جزءًا من الأسئلة إلى اختيارات حتى لا يأخذ التسجيل وقتًا طويلًا.</p>
         </article>
         <article className="intro-card">
           <span className="intro-step">03</span>
-          <h3>وضوح قبل كل شيء</h3>
-          <p>لا تحتاج إجابات مثالية، بل نفضّل شرحًا صريحًا لطريقتك في التفكير والعمل والتنفيذ.</p>
+          <h3>اشرح ما تعرفه</h3>
+          <p>الأسئلة المعمقة هدفها فهم تجربتك وطريقة تفكيرك، وليس الحكم عليك كاختبار مدرسي.</p>
         </article>
       </section>
 

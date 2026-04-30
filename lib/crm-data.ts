@@ -170,87 +170,34 @@ export const technicalSections = [
     ],
   },
   {
-    key: "technical-orientation",
-    title: "التوجه التقني",
+    key: "basic-technical-profile",
+    title: "الملف التقني الأساسي",
     fields: [
-      ["المجال الأقوى", "technicalFocus"],
-      ["التقنيات الأساسية", "primaryStack"],
-      ["سنوات الخبرة", "experienceYears"],
-      ["مشروع Production ودورك فيه", "recentSystems"],
+      ["الجوانب التي يرتاح لها المرشح", "technicalFocus"],
+      ["التقنيات التي يستعملها فعليًا", "primaryStack"],
+      ["سنوات الخبرة التقريبية", "experienceYears"],
+      ["مشروع أو تجربة قريبة", "recentSystems"],
     ],
   },
   {
-    key: "problem-solving",
-    title: "حل المشكلات",
+    key: "practical-comfort",
+    title: "المفاهيم وطريقة العمل",
     fields: [
-      ["تشخيص بطء الصفحة الرئيسية", "performanceScenario"],
-      ["الفرق بين Bug و Feature و Improvement", "classificationThinking"],
-      ["أول 3 خطوات عند Error غير معروف", "unknownErrorSteps"],
+      ["المفاهيم التي عنده معها تجربة", "databaseRelationships"],
+      ["كيف ينظم خدمته عادة", "codingPractices"],
+      ["استعمال الذكاء الاصطناعي", "aiUsage"],
     ],
   },
   {
-    key: "system-thinking",
-    title: "التفكير المنظومي",
+    key: "deeper-understanding",
+    title: "أسئلة الفهم والتفكير",
     fields: [
-      ["ما الذي تفهمه من API", "apiUnderstanding"],
-      ["ما الذي تفهمه من Database Relationships", "databaseRelationships"],
-      ["Authentication vs Authorization", "authDifference"],
-      ["بناء Users / Roles / Permissions", "rolesPermissionsDesign"],
-      ["تقسيم Mini CRM إلى Modules", "miniCrmModules"],
-    ],
-  },
-  {
-    key: "crm-erp-understanding",
-    title: "فهم أنظمة CRM / ERP",
-    fields: [
-      ["خبرتك أو فهمك لـ CRM / ERP / POS", "crmExperience"],
-      ["الفرق بين CRM و ERP", "crmVsErp"],
-      ["أهم 3 Features في CRM", "crmTopFeatures"],
-    ],
-  },
-  {
-    key: "coding-practices",
-    title: "ممارسات البرمجة",
-    fields: [
-      ["Clean Code: naming + structure", "codingPractices"],
-      ["Git و APIs في شغلك اليومي", "gitAndApis"],
       ["معالجة Form من Frontend حتى Database", "formFlowExplanation"],
-    ],
-  },
-  {
-    key: "ai-usage",
-    title: "استخدام الذكاء الاصطناعي",
-    fields: [
-      ["الأدوات التي تستخدمها وكيف", "aiUsage"],
-      ["كيف تضمن صحة وأمن وصيانة كود AI", "aiValidation"],
-      ["مثال نجاح وفشل مع AI", "aiExample"],
-    ],
-  },
-  {
-    key: "practical-test",
-    title: "الاختبار العملي",
-    fields: [
-      ["المستوى الأنسب لك", "practicalLevel"],
-      ["كيف ستنفذ وتسلم الاختبار", "practicalDelivery"],
-    ],
-  },
-  {
-    key: "work-simulation",
-    title: "العمل تحت الضغط والانسجام مع الفريق",
-    fields: [
+      ["تشخيص بطء صفحة في الموقع", "performanceScenario"],
+      ["التحقق من كود AI", "aiValidation"],
       ["التصرف مع Deadline قريب وباغات", "deadlineApproach"],
-      ["التعامل مع Dev كوده ضعيف", "weakCodeCollaboration"],
-      ["ردك إذا قيل لك بدّل كل الكود", "rewriteResponse"],
-    ],
-  },
-  {
-    key: "self-evaluation",
-    title: "التقييم الذاتي",
-    fields: [
       ["أبرز نقاط القوة الحالية", "strengths"],
-      ["تقييم نفسك من 10", "selfRatings"],
       ["ما الذي لو تعلمته الآن يرفع مستواك", "learningFocus"],
-      ["تجربة فشل وما تعلمته منها", "failureExperience"],
     ],
   },
 ] as const;

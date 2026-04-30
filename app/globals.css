@@ -432,11 +432,56 @@ textarea {
     #fff;
 }
 
+.application-stepper {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 68px;
+  padding: 14px 16px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--panel-soft);
+  color: var(--muted);
+}
+
+.step-indicator span {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: #fff;
+  color: var(--brand);
+  font-weight: 800;
+}
+
+.step-indicator strong {
+  line-height: 1.4;
+}
+
+.step-indicator-active,
+.step-indicator-complete {
+  border-color: rgba(197, 90, 17, 0.4);
+  background: #fff7ed;
+  color: var(--brand);
+}
+
 .form-section {
   display: grid;
   gap: 16px;
   padding-bottom: 18px;
   border-bottom: 1px solid var(--line);
+}
+
+.application-slide {
+  min-height: 420px;
 }
 
 .section-title {
@@ -497,6 +542,33 @@ textarea {
   border-color: rgba(197, 90, 17, 0.45);
   background: #fff4e8;
   transform: translateY(-1px);
+}
+
+.form-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgba(22, 101, 52, 0.16);
+  border-radius: var(--radius-lg);
+  background: #f0fdf4;
+  color: #14532d;
+}
+
+.form-note svg {
+  flex: 0 0 auto;
+  margin-top: 3px;
+}
+
+.form-note p {
+  margin: 0;
+  line-height: 1.7;
+  font-weight: 700;
+}
+
+.question-stack {
+  display: grid;
+  gap: 16px;
 }
 
 .form-section:last-of-type {
@@ -606,6 +678,17 @@ textarea {
   flex-wrap: wrap;
 }
 
+.form-actions-between {
+  justify-content: space-between;
+}
+
+.icon-button-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
 .submission-feedback.success,
 .status-message {
   color: var(--success);
@@ -656,7 +739,8 @@ textarea {
   .field-grid.two,
   .detail-grid,
   .answer-grid,
-  .choice-grid {
+  .choice-grid,
+  .application-stepper {
     grid-template-columns: 1fr;
   }
 
@@ -664,6 +748,15 @@ textarea {
   .application-hero-panel,
   .application-form-rich {
     padding: 22px;
+  }
+
+  .form-actions-between {
+    align-items: stretch;
+  }
+
+  .form-actions-between .primary-action,
+  .form-actions-between .secondary-action {
+    width: 100%;
   }
 }
 
